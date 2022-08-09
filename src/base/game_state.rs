@@ -33,6 +33,11 @@ struct HandDevelopmentCard {
 #[derive(Debug)]
 struct Bank {
     development_cards: Vec<DevelopmentCardType>,
+    resources: Resources,
+}
+
+#[derive(Debug)]
+struct Resources {
     wood: u8,
     brick: u8,
     sheep: u8,
@@ -44,11 +49,8 @@ struct Bank {
 struct Player {
     id: u8,
 
-    wood: u8,
-    brick: u8,
-    sheep: u8,
-    wheat: u8,
-    ore: u8,
+    resources: Resources,
+
     development_cards: Vec<HandDevelopmentCard>,
 
     roads: u8,
@@ -62,6 +64,8 @@ struct Player {
 pub enum Phase {
     Startup,
     StartupReverse,
+    WaitingForRoll,
+    MoveingRobber,
     Discarding,
     Game,
     End,
