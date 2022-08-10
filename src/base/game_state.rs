@@ -1,3 +1,11 @@
+use std::collections::HashMap;
+
+use crate::base::board::Building;
+use crate::base::board::BuildingTypes;
+use crate::base::board::Intersection;
+use crate::base::board::ALL_INTERSECTIONS;
+use crate::base::board::INTERSECTION_CONNECTIONS;
+
 #[derive(Debug)]
 enum TileTypes {
     Water,
@@ -19,7 +27,7 @@ enum DevelopmentCardType {
 }
 
 #[derive(Debug)]
-struct Tile {
+pub struct Tile {
     number: u8,
     tile_type: TileTypes,
 }
@@ -31,7 +39,7 @@ struct HandDevelopmentCard {
 }
 
 #[derive(Debug)]
-struct Bank {
+pub struct Bank {
     development_cards: Vec<DevelopmentCardType>,
     resources: Resources,
 }
@@ -46,7 +54,7 @@ struct Resources {
 }
 
 #[derive(Debug)]
-struct Player {
+pub struct Player {
     id: u8,
 
     resources: Resources,
@@ -80,6 +88,8 @@ pub struct GameState {
     pub board: Vec<Tile>,
     pub bank: Bank,
     pub player: Vec<Player>,
+
+    pub buildings: HashMap<Intersection, Building>,
 }
 
 impl Tile {
@@ -142,14 +152,18 @@ impl Tile {
 
 impl Player {
     fn new(index: u8) -> Player {
-        Player {
-            id: index,
-
+        let resources = Resources {
             wood: 0,
             brick: 0,
             sheep: 0,
             wheat: 0,
             ore: 0,
+        };
+
+        Player {
+            id: index,
+
+            resources: resources,
 
             development_cards: Vec::new(),
 
@@ -199,12 +213,16 @@ impl Bank {
 
         // TODO: Shuffle Dev Cards
 
-        Bank {
+        let resources = Resources {
             wood: 19,
             brick: 19,
             sheep: 19,
             wheat: 19,
             ore: 19,
+        };
+
+        Bank {
+            resources: resources,
 
             development_cards: dev_cards,
         }
@@ -219,11 +237,17 @@ impl GameState {
             player.push(Player::new(i))
         }
 
+        let mut buildings = HashMap::new();
+        for intersection in ALL_INTERSECTIONS {
+            buildings.insert(intersection, Building::new());
+        }
+
         let mut state = GameState {
             phase: Phase::Startup,
 
             active_player: 0,
             player: player,
+            buildings: buildings,
 
             bank: Bank::new(),
             board: Vec::new(),
@@ -273,5 +297,35 @@ impl GameState {
             Tile::water(),
             Tile::water(),
         ]
+    }
+
+    pub fn count_buildings_for_player(&self, player_id: u8, building_type: BuildingTypes) -> u32 {
+        self.buildings
+            .iter()
+            .filter(|(_, building)| {
+                building.building_type == building_type && building.player_id == player_id
+            })
+            .count()
+            .try_into()
+            .unwrap()
+    }
+
+    pub fn get_buildings_on_intersections_near(&self, intersection: &Intersection) -> Vec<&Building> {
+        match INTERSECTION_CONNECTIONS.get(&intersection) {
+            None => vec![],
+            Some(neighbours) => neighbours
+                .into_iter()
+                .map(|intersection| {
+                    let inter = &ALL_INTERSECTIONS[*intersection as usize];
+                    self.buildings.get(inter)
+                })
+                .filter(|building| building.is_some())
+                .map(|building| building.unwrap())
+                .collect(),
+        }
+    }
+
+    pub fn add_building(&mut self, player_id: u8, building_type: BuildingTypes, intersection: Intersection) {
+        *self.buildings.entry(intersection).or_insert(Building::new()) = Building::create(player_id, building_type);
     }
 }
