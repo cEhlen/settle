@@ -58,3 +58,42 @@ fn place_settlement_startup(
     game_state.add_building(player_id, BuildingTypes::Settlement, intersection);
     Ok(game_state)
 }
+
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_place_settlement_ok_startup() {
+        let mut state = GameState::new(4);
+        let result = apply_move(0, state, Move::PlaceSettlement(Intersection::new(0, 1, 5)));
+        assert!(result.is_ok());
+        if let Ok(new_state) = result {
+            assert!(new_state.get_building_at_intersection(Intersection::new(0, 1, 5)).is_some())
+        } else {
+            assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_place_settlement_fail_wrong_player_startup() {
+        let mut state = GameState::new(4);
+        let result = apply_move(2, state, Move::PlaceSettlement(Intersection::new(0, 1, 5)));
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_place_settlement_fail_player_placing_twice_startup() {
+        let mut state = GameState::new(4);
+        let result = apply_move(0, state, Move::PlaceSettlement(Intersection::new(0, 1, 5)));
+        assert!(result.is_ok());
+        if let Ok(new_state) = result {
+            let r2 = apply_move(0, new_state, Move::PlaceSettlement(Intersection::new(22, 23, 28)));
+            assert!(r2.is_err())
+        } else {
+            assert!(false)
+        }
+    }
+}

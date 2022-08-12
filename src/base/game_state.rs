@@ -230,7 +230,7 @@ impl Bank {
 }
 
 impl GameState {
-    fn new(number_players: u8) -> GameState {
+    pub fn new(number_players: u8) -> GameState {
         let mut player: Vec<Player> = Vec::new();
 
         for i in 0..number_players {
@@ -246,8 +246,8 @@ impl GameState {
             phase: Phase::Startup,
 
             active_player: 0,
-            player: player,
-            buildings: buildings,
+            player,
+            buildings,
 
             bank: Bank::new(),
             board: Vec::new(),
@@ -310,6 +310,10 @@ impl GameState {
             .unwrap()
     }
 
+    pub fn get_building_at_intersection(&self, intersection: Intersection) -> Option<&Building> {
+        self.buildings.get(&intersection)
+    }
+
     pub fn get_buildings_on_intersections_near(&self, intersection: &Intersection) -> Vec<&Building> {
         match INTERSECTION_CONNECTIONS.get(&intersection) {
             None => vec![],
@@ -327,5 +331,34 @@ impl GameState {
 
     pub fn add_building(&mut self, player_id: u8, building_type: BuildingTypes, intersection: Intersection) {
         *self.buildings.entry(intersection).or_insert(Building::new()) = Building::create(player_id, building_type);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_count_buildings_for_player() {
+        let mut state = GameState::new(4);
+        state.add_building(1, BuildingTypes::Settlement, Intersection::new(0, 1, 5));
+        state.add_building(1, BuildingTypes::Settlement, Intersection::new(9, 15, 16));
+        assert_eq!(state.count_buildings_for_player(1, BuildingTypes::Settlement), 2);
+        assert_eq!(state.count_buildings_for_player(1, BuildingTypes::City), 0);
+        assert_eq!(state.count_buildings_for_player(2, BuildingTypes::Settlement), 0);
+
+    }
+
+    #[test]
+    fn test_add_building() {
+        let mut state = GameState::new(4);
+        state.add_building(1, BuildingTypes::Settlement, Intersection::new(0, 1, 5));
+        let expected_building = Building::create(1, BuildingTypes::Settlement);
+        if let Some(building) = state.get_building_at_intersection(Intersection::new(0, 1, 5)) {
+            assert_eq!(*building, expected_building)
+        } else {
+            assert!(false)       
+        }
     }
 }
