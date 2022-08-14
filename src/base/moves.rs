@@ -1,6 +1,6 @@
+use crate::base::board::BuildingTypes;
 use crate::base::board::Intersection;
 use crate::base::board::RoadPosition;
-use crate::base::board::BuildingTypes;
 use crate::base::game_state::GameState;
 use crate::base::game_state::Phase;
 
@@ -19,6 +19,7 @@ pub fn apply_move(player_id: u8, mut game_state: GameState, game_move: Move) -> 
         Move::PlaceSettlement(intersection) => {
             handle_place_settlement(player_id, game_state, intersection)
         }
+        Move::PlaceRoad(road_position) => handle_place_road(player_id, game_state, road_position),
         _ => Err(InvalidMoveError),
     }
 }
@@ -47,18 +48,34 @@ fn place_settlement_startup(
     // First check if the player can actually place a settlement
     // We have to check if she maybe placed a settlement already and needs
     // to place a road instead
-    let placed_settlements = game_state.count_buildings_for_player(player_id, BuildingTypes::Settlement);
+    let placed_settlements =
+        game_state.count_buildings_for_player(player_id, BuildingTypes::Settlement);
     if placed_settlements != 0 {
-        return Err(InvalidMoveError)
+        return Err(InvalidMoveError);
     }
     let nearby_buildings = game_state.get_buildings_on_intersections_near(&intersection);
     if nearby_buildings.len() == 0 {
-        return Err(InvalidMoveError)
+        return Err(InvalidMoveError);
     }
     game_state.add_building(player_id, BuildingTypes::Settlement, intersection);
     Ok(game_state)
 }
 
+fn handle_place_road(
+    player_id: u8,
+    mut game_state: GameState,
+    road_position: RoadPosition,
+) -> ApplyMoveResult {
+    if player_id != game_state.active_player {
+        return Err(InvalidMoveError);
+    }
+    match game_state.phase {
+        Phase::Startup => place_road_startup(player_id, game_state, road_position),
+        Phase::StartupReverse => Ok(game_state),
+        Phase::Game => Ok(game_state),
+        _ => Err(InvalidMoveError),
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -71,7 +88,9 @@ mod tests {
         let result = apply_move(0, state, Move::PlaceSettlement(Intersection::new(0, 1, 5)));
         assert!(result.is_ok());
         if let Ok(new_state) = result {
-            assert!(new_state.get_building_at_intersection(Intersection::new(0, 1, 5)).is_some())
+            assert!(new_state
+                .get_building_at_intersection(Intersection::new(0, 1, 5))
+                .is_some())
         } else {
             assert!(false)
         }
@@ -90,7 +109,11 @@ mod tests {
         let result = apply_move(0, state, Move::PlaceSettlement(Intersection::new(0, 1, 5)));
         assert!(result.is_ok());
         if let Ok(new_state) = result {
-            let r2 = apply_move(0, new_state, Move::PlaceSettlement(Intersection::new(22, 23, 28)));
+            let r2 = apply_move(
+                0,
+                new_state,
+                Move::PlaceSettlement(Intersection::new(22, 23, 28)),
+            );
             assert!(r2.is_err())
         } else {
             assert!(false)

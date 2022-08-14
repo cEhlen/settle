@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::base::board::Building;
 use crate::base::board::BuildingTypes;
 use crate::base::board::Intersection;
+use crate::base::board::RoadPosition;
 use crate::base::board::ALL_INTERSECTIONS;
 use crate::base::board::INTERSECTION_CONNECTIONS;
 
@@ -90,6 +91,9 @@ pub struct GameState {
     pub player: Vec<Player>,
 
     pub buildings: HashMap<Intersection, Building>,
+    pub last_placed_building_at: Intersection,
+
+    // pub roads: HashMap<RoadPosition, Building>,
 }
 
 impl Tile {
@@ -251,6 +255,8 @@ impl GameState {
 
             bank: Bank::new(),
             board: Vec::new(),
+            last_placed_building_at: Intersection::new(0, 0, 0)
+
         };
 
         state.fill_default_board();
@@ -331,6 +337,7 @@ impl GameState {
 
     pub fn add_building(&mut self, player_id: u8, building_type: BuildingTypes, intersection: Intersection) {
         *self.buildings.entry(intersection).or_insert(Building::new()) = Building::create(player_id, building_type);
+        self.last_placed_building_at = intersection
     }
 }
 
@@ -347,7 +354,6 @@ mod tests {
         assert_eq!(state.count_buildings_for_player(1, BuildingTypes::Settlement), 2);
         assert_eq!(state.count_buildings_for_player(1, BuildingTypes::City), 0);
         assert_eq!(state.count_buildings_for_player(2, BuildingTypes::Settlement), 0);
-
     }
 
     #[test]

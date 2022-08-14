@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
-#[derive(Debug, Hash)]
+#[derive(Debug, Hash, Copy, Clone)]
 pub struct Intersection {
     p1: u8,
     p2: u8,
@@ -18,15 +18,11 @@ impl Eq for Intersection {}
 
 impl Intersection {
     pub fn new(p1: u8, p2: u8, p3: u8) -> Intersection {
-        Intersection {
-            p1: p1,
-            p2: p2,
-            p3: p3,
-        }
+        Intersection { p1, p2, p3 }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Hash)]
 pub struct RoadPosition {
     p1: u8,
     p2: u8,
@@ -42,7 +38,7 @@ impl Eq for RoadPosition {}
 
 impl RoadPosition {
     pub fn new(p1: u8, p2: u8) -> RoadPosition {
-        RoadPosition { p1: p1, p2: p2 }
+        RoadPosition { p1, p2 }
     }
 }
 
@@ -325,6 +321,87 @@ pub const ALL_INTERSECTIONS: [Intersection; 54] = [
     },
 ];
 
+pub const ALL_ROAD_POSITIONS: [RoadPosition; 72] = [
+    // Row 1
+    RoadPosition { p1: 0, p2: 5 }, // 0
+    RoadPosition { p1: 1, p2: 5 },
+    RoadPosition { p1: 1, p2: 6 },
+    RoadPosition { p1: 2, p2: 6 },
+    RoadPosition { p1: 2, p2: 7 },
+    RoadPosition { p1: 3, p2: 7 }, // 5
+    RoadPosition { p1: 4, p2: 5 },
+    RoadPosition { p1: 5, p2: 6 },
+    RoadPosition { p1: 6, p2: 7 },
+    RoadPosition { p1: 7, p2: 8 }, // 9
+    // Row 2
+    RoadPosition { p1: 4, p2: 10 }, // 10
+    RoadPosition { p1: 5, p2: 10 },
+    RoadPosition { p1: 5, p2: 11 },
+    RoadPosition { p1: 6, p2: 11 },
+    RoadPosition { p1: 6, p2: 12 },
+    RoadPosition { p1: 7, p2: 12 },
+    RoadPosition { p1: 7, p2: 13 },
+    RoadPosition { p1: 8, p2: 13 },
+    RoadPosition { p1: 9, p2: 10 },
+    RoadPosition { p1: 10, p2: 11 },
+    RoadPosition { p1: 11, p2: 12 },
+    RoadPosition { p1: 12, p2: 13 },
+    RoadPosition { p1: 13, p2: 14 },
+    // Row 3
+    RoadPosition { p1: 9, p2: 16 },
+    RoadPosition { p1: 10, p2: 16 },
+    RoadPosition { p1: 10, p2: 17 },
+    RoadPosition { p1: 11, p2: 17 },
+    RoadPosition { p1: 11, p2: 18 },
+    RoadPosition { p1: 12, p2: 18 },
+    RoadPosition { p1: 12, p2: 19 },
+    RoadPosition { p1: 13, p2: 19 },
+    RoadPosition { p1: 13, p2: 20 },
+    RoadPosition { p1: 14, p2: 20 },
+    RoadPosition { p1: 15, p2: 16 },
+    RoadPosition { p1: 16, p2: 17 },
+    RoadPosition { p1: 17, p2: 18 },
+    RoadPosition { p1: 18, p2: 19 },
+    RoadPosition { p1: 19, p2: 20 },
+    RoadPosition { p1: 20, p2: 21 },
+    // Row 4
+    RoadPosition { p1: 16, p2: 22 },
+    RoadPosition { p1: 16, p2: 23 },
+    RoadPosition { p1: 17, p2: 23 },
+    RoadPosition { p1: 17, p2: 24 },
+    RoadPosition { p1: 18, p2: 24 },
+    RoadPosition { p1: 18, p2: 25 },
+    RoadPosition { p1: 19, p2: 25 },
+    RoadPosition { p1: 19, p2: 26 },
+    RoadPosition { p1: 20, p2: 26 },
+    RoadPosition { p1: 20, p2: 27 },
+    RoadPosition { p1: 22, p2: 23 },
+    RoadPosition { p1: 23, p2: 24 },
+    RoadPosition { p1: 24, p2: 25 },
+    RoadPosition { p1: 25, p2: 26 },
+    RoadPosition { p1: 26, p2: 27 },
+    // Row 5
+    RoadPosition { p1: 23, p2: 28 },
+    RoadPosition { p1: 23, p2: 29 },
+    RoadPosition { p1: 24, p2: 29 },
+    RoadPosition { p1: 24, p2: 30 },
+    RoadPosition { p1: 25, p2: 30 },
+    RoadPosition { p1: 25, p2: 31 },
+    RoadPosition { p1: 26, p2: 31 },
+    RoadPosition { p1: 26, p2: 32 },
+    RoadPosition { p1: 28, p2: 29 },
+    RoadPosition { p1: 29, p2: 30 },
+    RoadPosition { p1: 30, p2: 31 },
+    RoadPosition { p1: 31, p2: 32 },
+    // Row 6
+    RoadPosition { p1: 29, p2: 33 },
+    RoadPosition { p1: 29, p2: 34 },
+    RoadPosition { p1: 30, p2: 34 },
+    RoadPosition { p1: 30, p2: 35 },
+    RoadPosition { p1: 31, p2: 35 },
+    RoadPosition { p1: 31, p2: 36 },
+];
+
 lazy_static! {
 pub static ref INTERSECTION_CONNECTIONS: HashMap<Intersection, Vec<u8>> = HashMap::from([
     // Row 1
@@ -392,6 +469,145 @@ pub static ref INTERSECTION_CONNECTIONS: HashMap<Intersection, Vec<u8>> = HashMa
     (Intersection::new(30, 31, 35), vec![43, 50, 52]),
     (Intersection::new(31, 35, 36), vec![51, 53]),
     (Intersection::new(31, 32, 36), vec![45, 52]),
+]);
+
+pub static ref ROAD_TO_INTERSECTION_CONNECTION: HashMap<RoadPosition, [u8; 2]> = HashMap::from([
+    // Row 1
+    (RoadPosition{ p1: 0, p2: 5 }, [0, 1]),
+    (RoadPosition{ p1: 1, p2: 5 }, [1, 2]),
+    (RoadPosition{ p1: 1, p2: 6}, [2, 3]),
+    (RoadPosition{ p1: 2, p2: 6}, [3, 4]),
+    (RoadPosition{p1: 2, p2: 7}, [4, 5]),
+    (RoadPosition{ p1: 3, p2: 7}, [5, 6]),
+    (RoadPosition{ p1: 4, p2: 5}, [0, 8]),
+    (RoadPosition{ p1: 5, p2: 6}, [2, 10]),
+    (RoadPosition{ p1: 6, p2: 7}, [4, 12]),
+    (RoadPosition{ p1: 7, p2: 8}, [6, 14]),
+    // Row 2
+    (RoadPosition{ p1: 4, p2: 10}, [7, 8]),
+    (RoadPosition{ p1: 5, p2: 10}, [8, 9]),
+    (RoadPosition{ p1: 5, p2: 11}, [9, 10]),
+    (RoadPosition{ p1: 6, p2: 11}, [10, 11]),
+    (RoadPosition{ p1: 6, p2: 12}, [11, 12]),
+    (RoadPosition{ p1: 7, p2: 12}, [12, 13]),
+    (RoadPosition{ p1: 7, p2: 13}, [13, 14]),
+    (RoadPosition{ p1: 8, p2: 13}, [14, 15]),
+    (RoadPosition{ p1: 9, p2: 10}, [7, 17]),
+    (RoadPosition{ p1: 10, p2: 11}, [9, 19]),
+    (RoadPosition{ p1: 11, p2: 12}, [11, 21]),
+    (RoadPosition{ p1: 12, p2: 13}, [13, 23]),
+    (RoadPosition{ p1: 13, p2: 14}, [15, 25]),
+    // Row 3
+    (RoadPosition{ p1: 9, p2: 16}, [16, 17]),
+    (RoadPosition{ p1: 10, p2: 16}, [17, 18]),
+    (RoadPosition{ p1: 10, p2: 17}, [18, 19]),
+    (RoadPosition{ p1: 11, p2: 17}, [19, 20]),
+    (RoadPosition{ p1: 11, p2: 18}, [20, 21]),
+    (RoadPosition{ p1: 12, p2: 18}, [21, 22]),
+    (RoadPosition{ p1: 12, p2: 19}, [22, 23]),
+    (RoadPosition{ p1: 13, p2: 19}, [23, 24]),
+    (RoadPosition{ p1: 13, p2: 20}, [24, 25]),
+    (RoadPosition{ p1: 14, p2: 20}, [25, 26]),
+    (RoadPosition{ p1: 15, p2: 16}, [16, 27]),
+    (RoadPosition{ p1: 16, p2: 17}, [18, 29]),
+    (RoadPosition{ p1: 17, p2: 18}, [20, 31]),
+    (RoadPosition{ p1: 18, p2: 19}, [22, 33]),
+    (RoadPosition{ p1: 19, p2: 20}, [24, 35]),
+    (RoadPosition{ p1: 20, p2: 21}, [26, 37]),
+    // Row 4
+    (RoadPosition{ p1: 16, p2: 22}, [27, 28]),
+    (RoadPosition{ p1: 16, p2: 23}, [28, 29]),
+    (RoadPosition{ p1: 17, p2: 23}, [29, 30]),
+    (RoadPosition{ p1: 17, p2: 24}, [30, 31]),
+    (RoadPosition{ p1: 18, p2: 24}, [31, 32]),
+    (RoadPosition{ p1: 18, p2: 25}, [32, 33]),
+    (RoadPosition{ p1: 19, p2: 25}, [33, 34]),
+    (RoadPosition{ p1: 19, p2: 26}, [34, 35]),
+    (RoadPosition{ p1: 20, p2: 26}, [35, 36]),
+    (RoadPosition{ p1: 20, p2: 27}, [36, 37]),
+    (RoadPosition{ p1: 22, p2: 23}, [28, 38]),
+    (RoadPosition{ p1: 23, p2: 24}, [30, 40]),
+    (RoadPosition{ p1: 24, p2: 25}, [32, 42]),
+    (RoadPosition{ p1: 25, p2: 26}, [34, 44]),
+    (RoadPosition{ p1: 26, p2: 27}, [36, 46]),
+    // Row 5
+    (RoadPosition{ p1: 23, p2: 28}, [38, 39]),
+    (RoadPosition{ p1: 23, p2: 29}, [39, 40]),
+    (RoadPosition{ p1: 24, p2: 29}, [40, 41]),
+    (RoadPosition{ p1: 24, p2: 30}, [41, 42]),
+    (RoadPosition{ p1: 25, p2: 30}, [42, 43]),
+    (RoadPosition{ p1: 25, p2: 31}, [43, 44]),
+    (RoadPosition{ p1: 26, p2: 31}, [44, 45]),
+    (RoadPosition{ p1: 26, p2: 32}, [45, 46]),
+    (RoadPosition{ p1: 28, p2: 29}, [39, 47]),
+    (RoadPosition{ p1: 29, p2: 30}, [41, 49]),
+    (RoadPosition{ p1: 30, p2: 31}, [43, 51]),
+    (RoadPosition{ p1: 31, p2: 32}, [45, 53]),
+    // Row 6
+    (RoadPosition{ p1: 29, p2: 33}, [47, 48]),
+    (RoadPosition{ p1: 29, p2: 34}, [48, 49]),
+    (RoadPosition{ p1: 30, p2: 34}, [49, 50]),
+    (RoadPosition{ p1: 30, p2: 35}, [50, 51]),
+    (RoadPosition{ p1: 31, p2: 35}, [51, 52]),
+    (RoadPosition{ p1: 31, p2: 36}, [52, 53]),
+]);
+
+
+pub static ref INTERSECTION_TO_ROAD_CONNECTION: HashMap<Intersection, Vec<u8>> = HashMap::from([
+    (Intersection::new(13,14,20), vec![22,31,32]),
+    (Intersection::new(30,34,35), vec![68,69]),
+(Intersection::new(5,6,11), vec![7,12,13]),
+(Intersection::new(19,20,26), vec![37,46,47]),
+(Intersection::new(29,30,34), vec![63,67,68]),
+(Intersection::new(10,11,17), vec![19,25,26]),
+(Intersection::new(0,4,5), vec![0,6]),
+(Intersection::new(6,11,12), vec![13,14,20]),
+(Intersection::new(7,12,13), vec![15,16,21]),
+(Intersection::new(26,27,32), vec![53,61]),
+(Intersection::new(10,16,17), vec![24,25,34]),
+(Intersection::new(1,5,6), vec![1,2,7]),
+(Intersection::new(16,22,23), vec![39,40,49]),
+(Intersection::new(0,1,5), vec![0,1]),
+(Intersection::new(7,8,13), vec![9,16,17]),
+(Intersection::new(25,26,31), vec![52,59,60]),
+(Intersection::new(26,31,32), vec![60,61,65]),
+(Intersection::new(9,10,16), vec![18,23,24]),
+(Intersection::new(11,12,18), vec![20,27,28]),
+(Intersection::new(3,7,8), vec![5,9]),
+(Intersection::new(16,17,23), vec![34,40,41]),
+(Intersection::new(12,18,19), vec![28,29,36]),
+(Intersection::new(2,6,7), vec![3,4,8]),
+(Intersection::new(4,5,10), vec![6,10,11]),
+(Intersection::new(11,17,18), vec![26,27,35]),
+(Intersection::new(31,35,36), vec![70,71]),
+(Intersection::new(18,24,25), vec![43,44,51]),
+(Intersection::new(14,20,21), vec![32,38]),
+(Intersection::new(4,9,10), vec![10,18]),
+(Intersection::new(9,15,16), vec![23,33]),
+(Intersection::new(1,2,6), vec![2,3]),
+(Intersection::new(5,10,11), vec![11,12,19]),
+(Intersection::new(2,3,7), vec![4,5]),
+(Intersection::new(30,31,35), vec![64,69,70]),
+(Intersection::new(19,25,26), vec![45,46,52]),
+(Intersection::new(6,7,12), vec![8,14,15]),
+(Intersection::new(20,26,27), vec![47,48,53]),
+(Intersection::new(24,29,30), vec![56,57,63]),
+(Intersection::new(17,23,24), vec![41,42,50]),
+(Intersection::new(23,24,29), vec![50,55,56]),
+(Intersection::new(25,30,31), vec![58,59,64]),
+(Intersection::new(13,19,20), vec![30,31,37]),
+(Intersection::new(8,13,14), vec![17,22]),
+(Intersection::new(24,25,30), vec![51,57,58]),
+(Intersection::new(18,19,25), vec![36,44,45]),
+(Intersection::new(12,13,19), vec![21,29,30]),
+(Intersection::new(23,28,29), vec![54,55,62]),
+(Intersection::new(28,29,33), vec![62,66]),
+(Intersection::new(22,23,28), vec![49,54]),
+(Intersection::new(15,16,22), vec![33,39]),
+(Intersection::new(17,18,24), vec![35,42,43]),
+(Intersection::new(31,32,36), vec![65,71]),
+(Intersection::new(20,21,27), vec![38,48]),
+(Intersection::new(29,33,34), vec![66,67]),
 ]);
 }
 
